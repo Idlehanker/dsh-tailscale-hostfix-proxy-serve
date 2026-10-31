@@ -166,18 +166,18 @@ if (verb === 'start' || verb === undefined) {
       port: listenPort,
       targetPort,
       targetHost,
-      log: (message) => console.error(`[hostfix] ${message}`),
+      log: (message) => console.error(`[dsh-hostfix] ${message}`),
     })
     console.log(
-      `[hostfix] listening on http://127.0.0.1:${address.port} -> ${targetHost}:${targetPort}`
+      `[dsh-hostfix] listening on http://127.0.0.1:${address.port} -> ${targetHost}:${targetPort}`
       + ` (Host rewritten to ${targetHost}:${targetPort})`,
     )
   } catch (error) {
     if (error.code === 'EADDRINUSE') {
-      console.error(`[hostfix] port ${listenPort} is already in use — another instance is running`)
+      console.error(`[dsh-hostfix] port ${listenPort} is already in use — another instance is running`)
       process.exit(0)
     }
-    console.error(`[hostfix] failed to start: ${error.message}`)
+    console.error(`[dsh-hostfix] failed to start: ${error.message}`)
     process.exit(1)
   }
   // Keep the process alive; the server holds the event loop.
