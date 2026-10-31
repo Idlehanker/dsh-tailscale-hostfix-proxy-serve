@@ -35,6 +35,34 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.local.hostfix-proxy.
 launchctl print gui/$(id -u)/com.local.hostfix-proxy | grep -E "state|pid"
 ```
 
+## launchd and version-managed Node
+
+If node comes from nvm / asdf / volta, do NOT point the agent at the npm bin
+shim (`/path/to/bin/hostfix-proxy`). That file is `#!/usr/bin/env node`, and
+launchd gives the agent a minimal PATH without your version manager, so it dies
+with:
+
+```
+env: node: No such file or directory
+```
+
+...while `state = spawn scheduled` and `KeepAlive` retries forever. Run node as
+the interpreter and the CLI as its argument instead:
+
+```xml
+<key>ProgramArguments</key>
+<array>
+  <string>/Users/you/.nvm/versions/node/v22.x/bin/node</string>
+  <string>/Users/you/.nvm/versions/node/v22.x/lib/node_modules/hostfix-proxy/bin/cli.js</string>
+  <string>start</string>
+  <string>--target</string><string>18680</string>
+  <string>--listen</string><string>18682</string>
+</array>
+```
+
+Resolve both paths with `command -v node` and `npm root -g`, and re-check them
+after any node upgrade.
+
 ## Health
 
 ```sh
