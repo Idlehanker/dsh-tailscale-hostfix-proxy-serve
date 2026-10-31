@@ -1,4 +1,4 @@
-# hostfix-proxy
+# dsh-tailscale-hostfix-proxy-serve
 
 让「只信任 loopback 的后端」在 TLS 反向代理后面正常工作。
 
@@ -7,9 +7,23 @@
 ```
 浏览器
   └─ https://box.example.com        (TLS 终止：tailscale serve / Caddy / nginx)
-       └─ http://127.0.0.1:18682    (hostfix-proxy —— 改写 Host 与 Origin)
+       └─ http://127.0.0.1:18682    (dsh-tailscale-hostfix-proxy-serve —— 改写 Host 与 Origin)
             └─ http://127.0.0.1:18680   (你的应用，一行代码都不用改)
 ```
+
+## 关于这个名字
+
+名字刻意取长。每一段都回答一个本来要翻 README 才知道的问题：
+
+| 片段 | 回答 |
+|---|---|
+| `dsh-` | 为 DeepSeek Harness 而写，虽然代码本身与 DSH 无关 |
+| `tailscale-` | 针对的是这个终止层 |
+| `hostfix` | 做什么：修 Host 头 |
+| `proxy-serve` | 怎么做：架在 `tailscale serve` 前面的代理 |
+
+另一个理由是**可被搜到**。一个只解决某类 403 的工具，要么在别人搜那个症状时出现，
+要么就白写了；而 `hostfix-proxy` 会和上百个无关代理混在一起，分不出来。
 
 ## 它要解决的问题
 
@@ -33,13 +47,13 @@ if (req.headers.host !== req.socket.localAddress) return forbidden()
 ## 安装
 
 ```sh
-npm install -g github:Idlehanker/hostfix-proxy
+npm install -g github:Idlehanker/dsh-tailscale-hostfix-proxy-serve
 ```
 
 不安装直接跑：
 
 ```sh
-npx github:Idlehanker/hostfix-proxy check --target 18680
+npx github:Idlehanker/dsh-tailscale-hostfix-proxy-serve check --target 18680
 ```
 
 ## 使用
@@ -49,7 +63,7 @@ npx github:Idlehanker/hostfix-proxy check --target 18680
 ### 1. 我的后端是否受影响？
 
 ```sh
-hostfix-proxy check --target 18680
+dsh-tailscale-hostfix-proxy-serve check --target 18680
 ```
 
 ```
@@ -61,7 +75,7 @@ direct        : 403
 via proxy     : not running
 
 This is the bug this tool fixes, and the proxy is not running yet:
-  hostfix-proxy start --target 18680
+  dsh-tailscale-hostfix-proxy-serve start --target 18680
 ```
 
 探针会**故意发一个外来 Host**，再比对直连与经代理的返回。这一步把「服务挂了」和
@@ -70,7 +84,7 @@ This is the bug this tool fixes, and the proxy is not running yet:
 ### 2. 启动
 
 ```sh
-hostfix-proxy start --target 18680 --listen 18682
+dsh-tailscale-hostfix-proxy-serve start --target 18680 --listen 18682
 ```
 
 然后把终止层从应用改指向代理：
@@ -94,7 +108,7 @@ systemd：
 
 ```ini
 [Service]
-ExecStart=/usr/local/bin/hostfix-proxy start --target 18680 --listen 18682
+ExecStart=/usr/local/bin/dsh-tailscale-hostfix-proxy-serve start --target 18680 --listen 18682
 Restart=always
 RestartSec=10
 ```
@@ -138,7 +152,7 @@ RestartSec=10
 ## 作为库使用
 
 ```js
-import { startProxy } from 'hostfix-proxy'
+import { startProxy } from 'dsh-tailscale-hostfix-proxy-serve'
 
 const { server, address } = await startProxy({ port: 18682, targetPort: 18680 })
 ```

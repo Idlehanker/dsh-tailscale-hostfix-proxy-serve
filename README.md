@@ -1,4 +1,4 @@
-# hostfix-proxy
+# dsh-tailscale-hostfix-proxy-serve
 
 Make a loopback-only back end work behind a TLS terminator.
 
@@ -7,9 +7,25 @@ Make a loopback-only back end work behind a TLS terminator.
 ```
 browser
   └─ https://box.example.com        (TLS terminator: tailscale serve / Caddy / nginx)
-       └─ http://127.0.0.1:18682    (hostfix-proxy — rewrites Host + Origin)
+       └─ http://127.0.0.1:18682    (dsh-tailscale-hostfix-proxy-serve — rewrites Host + Origin)
             └─ http://127.0.0.1:18680   (your app, unchanged)
 ```
+
+## About the name
+
+It is long on purpose. Each segment answers a question you would otherwise have
+to open the README to ask:
+
+| segment | answers |
+|---|---|
+| `dsh-` | this was written for DeepSeek Harness, though nothing in it is DSH-specific |
+| `tailscale-` | the terminator this was built against |
+| `hostfix` | what it does: repair the Host header |
+| `proxy-serve` | how: a proxy in front of `tailscale serve` |
+
+Searchability is the other reason. A tool that fixes one specific 403 either
+shows up when someone searches that symptom, or it does not — and `hostfix-proxy`
+would have been indistinguishable from a hundred unrelated proxies.
 
 ## The bug this exists for
 
@@ -38,13 +54,13 @@ request.
 ## Install
 
 ```sh
-npm install -g github:Idlehanker/hostfix-proxy
+npm install -g github:Idlehanker/dsh-tailscale-hostfix-proxy-serve
 ```
 
 Or run it with no install at all:
 
 ```sh
-npx github:Idlehanker/hostfix-proxy check --target 18680
+npx github:Idlehanker/dsh-tailscale-hostfix-proxy-serve check --target 18680
 ```
 
 ## Use
@@ -54,7 +70,7 @@ Both questions you actually have are one command each.
 ### 1. Is my back end affected?
 
 ```sh
-hostfix-proxy check --target 18680
+dsh-tailscale-hostfix-proxy-serve check --target 18680
 ```
 
 ```
@@ -66,7 +82,7 @@ direct        : 403
 via proxy     : not running
 
 This is the bug this tool fixes, and the proxy is not running yet:
-  hostfix-proxy start --target 18680
+  dsh-tailscale-hostfix-proxy-serve start --target 18680
 ```
 
 The probe sends a **deliberately foreign** Host and compares the direct answer
@@ -77,7 +93,7 @@ or the port is wrong.
 ### 2. Run it
 
 ```sh
-hostfix-proxy start --target 18680 --listen 18682
+dsh-tailscale-hostfix-proxy-serve start --target 18680 --listen 18682
 ```
 
 Then point the terminator at the proxy instead of the app:
@@ -98,7 +114,7 @@ tailscale serve --bg --https=18681 http://127.0.0.1:18682
 macOS launchd:
 
 ```sh
-hostfix-proxy start --target 18680   # verify by hand first
+dsh-tailscale-hostfix-proxy-serve start --target 18680   # verify by hand first
 # then wrap it in a LaunchAgent with KeepAlive — see docs/OPERATIONS.md
 ```
 
@@ -106,11 +122,11 @@ systemd:
 
 ```ini
 [Unit]
-Description=hostfix-proxy
+Description=dsh-tailscale-hostfix-proxy-serve
 After=network.target
 
 [Service]
-ExecStart=/usr/local/bin/hostfix-proxy start --target 18680 --listen 18682
+ExecStart=/usr/local/bin/dsh-tailscale-hostfix-proxy-serve start --target 18680 --listen 18682
 Restart=always
 RestartSec=10
 
@@ -164,7 +180,7 @@ which compare `Origin` against `Host` and keep working under the proxy.
 ## Library use
 
 ```js
-import { startProxy } from 'hostfix-proxy'
+import { startProxy } from 'dsh-tailscale-hostfix-proxy-serve'
 
 const { server, address } = await startProxy({ port: 18682, targetPort: 18680 })
 console.log('listening on', address.port)

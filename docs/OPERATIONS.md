@@ -5,17 +5,17 @@
 The process is meant to be supervised; `KeepAlive` is what makes a crash a
 non-event.
 
-`~/Library/LaunchAgents/com.local.hostfix-proxy.plist`:
+`~/Library/LaunchAgents/com.local.dsh-tailscale-hostfix-proxy-serve.plist`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-  <key>Label</key><string>com.local.hostfix-proxy</string>
+  <key>Label</key><string>com.local.dsh-tailscale-hostfix-proxy-serve</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/bin/hostfix-proxy</string>
+    <string>/usr/local/bin/dsh-tailscale-hostfix-proxy-serve</string>
     <string>start</string>
     <string>--target</string><string>18680</string>
     <string>--listen</string><string>18682</string>
@@ -24,21 +24,21 @@ non-event.
   <key>KeepAlive</key><true/>
   <!-- A restart loop against a port that is genuinely taken is noise; wait. -->
   <key>ThrottleInterval</key><integer>10</integer>
-  <key>StandardOutPath</key><string>/tmp/hostfix-proxy.log</string>
-  <key>StandardErrorPath</key><string>/tmp/hostfix-proxy.log</string>
+  <key>StandardOutPath</key><string>/tmp/dsh-tailscale-hostfix-proxy-serve.log</string>
+  <key>StandardErrorPath</key><string>/tmp/dsh-tailscale-hostfix-proxy-serve.log</string>
 </dict>
 </plist>
 ```
 
 ```sh
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.local.hostfix-proxy.plist
-launchctl print gui/$(id -u)/com.local.hostfix-proxy | grep -E "state|pid"
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.local.dsh-tailscale-hostfix-proxy-serve.plist
+launchctl print gui/$(id -u)/com.local.dsh-tailscale-hostfix-proxy-serve | grep -E "state|pid"
 ```
 
 ## launchd and version-managed Node
 
 If node comes from nvm / asdf / volta, do NOT point the agent at the npm bin
-shim (`/path/to/bin/hostfix-proxy`). That file is `#!/usr/bin/env node`, and
+shim (`/path/to/bin/dsh-tailscale-hostfix-proxy-serve`). That file is `#!/usr/bin/env node`, and
 launchd gives the agent a minimal PATH without your version manager, so it dies
 with:
 
@@ -53,7 +53,7 @@ the interpreter and the CLI as its argument instead:
 <key>ProgramArguments</key>
 <array>
   <string>/Users/you/.nvm/versions/node/v22.x/bin/node</string>
-  <string>/Users/you/.nvm/versions/node/v22.x/lib/node_modules/hostfix-proxy/bin/cli.js</string>
+  <string>/Users/you/.nvm/versions/node/v22.x/lib/node_modules/dsh-tailscale-hostfix-proxy-serve/bin/cli.js</string>
   <string>start</string>
   <string>--target</string><string>18680</string>
   <string>--listen</string><string>18682</string>
@@ -66,7 +66,7 @@ after any node upgrade.
 ## Health
 
 ```sh
-hostfix-proxy check --target 18680
+dsh-tailscale-hostfix-proxy-serve check --target 18680
 ```
 
 Exit codes are meant for supervisors and alerting:
@@ -91,7 +91,7 @@ Check what the *direct* answer is with `check`; if the back end already accepts 
 foreign Host, this tool is not the answer.
 
 **The UI loads but never connects.** Something is dropping the upgrade — a second
-proxy in front, or a terminator configured for HTTP/1.0. `hostfix-proxy` relays
+proxy in front, or a terminator configured for HTTP/1.0. `dsh-tailscale-hostfix-proxy-serve` relays
 upgrades; verify with a WebSocket client through the proxy port itself.
 
 **`EADDRINUSE` on start.** Another instance is already listening. The CLI exits

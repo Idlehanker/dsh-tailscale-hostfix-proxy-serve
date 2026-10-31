@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Command line for hostfix-proxy.
+ * Command line for dsh-tailscale-hostfix-proxy-serve.
  *
  * Three verbs, chosen so that the two questions a user actually has are each one
  * command:
@@ -12,7 +12,7 @@
  * `check` exists because the first instinct on a 403 is to blame the credential
  * or the service, and this narrows it down in one step instead of five.
  *
- * @module hostfix-proxy/bin
+ * @module dsh-tailscale-hostfix-proxy-serve/bin
  */
 
 import http from 'node:http'
@@ -21,12 +21,12 @@ import { startProxy } from '../src/proxy.js'
 const DEFAULT_LISTEN_PORT = 18682
 const DEFAULT_TARGET_PORT = 18680
 
-const HELP = `hostfix-proxy — serve a loopback-only back end behind a TLS proxy
+const HELP = `dsh-tailscale-hostfix-proxy-serve — serve a loopback-only back end behind a TLS proxy
 
 USAGE
-  hostfix-proxy start   [--listen <port>] [--target <port>] [--host <host>]
-  hostfix-proxy check   [--target <port>] [--listen <port>] [--path <path>]
-  hostfix-proxy explain
+  dsh-tailscale-hostfix-proxy-serve start   [--listen <port>] [--target <port>] [--host <host>]
+  dsh-tailscale-hostfix-proxy-serve check   [--target <port>] [--listen <port>] [--path <path>]
+  dsh-tailscale-hostfix-proxy-serve explain
 
 OPTIONS
   --listen <port>   port to accept on (default ${DEFAULT_LISTEN_PORT}), bound to 127.0.0.1 only
@@ -92,7 +92,7 @@ const [verb, ...rest] = process.argv.slice(2)
 const flags = parse(rest)
 
 if (verb === 'explain') {
-  console.log(`hostfix-proxy rewrites exactly two request headers before forwarding:
+  console.log(`dsh-tailscale-hostfix-proxy-serve rewrites exactly two request headers before forwarding:
 
   host    -> <target host>:<target port>
   origin  -> http://<target host>:<target port>   (only when one was sent)
@@ -135,7 +135,7 @@ if (verb === 'check') {
   }
   if (direct === 403 && viaProxy === undefined) {
     console.log('\nThis is the bug this tool fixes, and the proxy is not running yet:')
-    console.log(`  hostfix-proxy start --target ${targetPort}`)
+    console.log(`  dsh-tailscale-hostfix-proxy-serve start --target ${targetPort}`)
     process.exit(2)
   }
   if (direct === 403 && viaProxy !== undefined && viaProxy !== 403) {

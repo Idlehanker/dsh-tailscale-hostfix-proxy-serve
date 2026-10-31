@@ -1,5 +1,5 @@
 /**
- * hostfix-proxy — make a loopback-only back end usable behind a TLS terminator.
+ * dsh-tailscale-hostfix-proxy-serve — make a loopback-only back end usable behind a TLS terminator.
  *
  * ## The bug this exists for
  *
@@ -26,7 +26,7 @@
  * the response stream. WebSocket upgrades are proxied, because a UI that loads
  * but cannot open its socket looks like a broken app rather than a broken proxy.
  *
- * @module hostfix-proxy
+ * @module dsh-tailscale-hostfix-proxy-serve
  */
 
 import http from 'node:http'
