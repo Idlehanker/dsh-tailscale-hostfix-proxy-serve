@@ -1,0 +1,45 @@
+{
+  "name": "hostfix-proxy",
+  "version": "1.0.0",
+  "description": "Make loopback-only backends work behind a TLS terminator. A tiny reverse proxy that rewrites Host/Origin so plugins that 403 any non-loopback Host stop breaking when served over Tailscale, Caddy, nginx or a tunnel.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Idlehanker",
+  "keywords": [
+    "reverse-proxy",
+    "host-header",
+    "tailscale",
+    "dns-rebinding",
+    "loopback",
+    "dsh-plugin",
+    "deepseek-harness"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "hostfix-proxy": "./bin/cli.js"
+  },
+  "exports": {
+    ".": "./src/proxy.js"
+  },
+  "files": [
+    "src",
+    "bin",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "check": "node --check src/proxy.js && node --check bin/cli.js && node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Idlehanker/hostfix-proxy.git"
+  },
+  "homepage": "https://github.com/Idlehanker/hostfix-proxy#readme",
+  "bugs": {
+    "url": "https://github.com/Idlehanker/hostfix-proxy/issues"
+  }
+}

@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: syntax
+        run: |
+          node --check src/proxy.js
+          node --check bin/cli.js
+      - name: tests
+        run: npm test
+      - name: cli loads
+        run: node bin/cli.js explain
+      - name: check verb reports unreachable rather than hanging
+        run: |
+          set +e
+          node bin/cli.js check --target 1 --listen 2
+          code=$?
+          set -e
+          # 1 = back end unreachable, which is the correct answer here
+          test "$code" -eq 1
